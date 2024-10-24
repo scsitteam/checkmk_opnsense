@@ -37,6 +37,7 @@ EXAMPLE_VIP_SECTION = [
     {"advbase": "1", "advskew": "0", "interface": "lan", "mode": "vrrp2", "status": "MASTER", "status_txt": "MASTER", "subnet": "192.168.0.3", "vhid": "4", "vhid_txt": "4 (freq. 1/0)"},
 ]
 
+
 @pytest.mark.parametrize('string_table, result', [
     ([], None),
     (
@@ -119,7 +120,6 @@ def test_check_opnsense_carp(params, section_carp, result):
     assert list(opnsense_vip.check_opnsense_carp(params, section_carp, EXAMPLE_VIP_SECTION)) == result
 
 
-
 @pytest.mark.parametrize('params, section, result', [
     ({}, None, []),
     ({}, EXAMPLE_VIP_SECTION, []),
@@ -158,7 +158,7 @@ def test_discovery_opnsense_vip(params, section, result):
         ]
     ),
     (
-        {'interface': 'wan', 'vhid': '1', 'expected_status': 'BACKUP',  'discovery_status': 'MASTER'},
+        {'interface': 'wan', 'vhid': '1', 'expected_status': 'BACKUP', 'discovery_status': 'MASTER'},
         [
             Result(state=State.WARN, summary='MASTER: 10.0.0.1 (expected: BACKUP)'),
         ]

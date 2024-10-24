@@ -20,19 +20,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import json
-from itertools import groupby
 from cmk.agent_based.v2 import (
     AgentSection,
+    check_levels,
     CheckPlugin,
-    Metric,
+    CheckResult,
+    DiscoveryResult,
+    render,
     Result,
     Service,
     State,
-    check_levels,
-    RuleSetType,
-    DiscoveryResult,
-    CheckResult,
-    render,
 )
 
 

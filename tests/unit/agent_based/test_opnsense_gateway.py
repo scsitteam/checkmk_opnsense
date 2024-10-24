@@ -42,6 +42,7 @@ EXAMPLE_SECTION = {
     "GW_D": {"name": "GW_D", "address": "192.168.0.4", "status": "none", "loss": 100.0, "delay": 0.0066, "stddev": 0.0001, "monitor": "192.168.0.44", "status_translated": "Offline"},
 }
 
+
 @pytest.mark.parametrize('string_table, result', [
     ([], {}),
     (EXAMPLE_STRINGTABLE, EXAMPLE_SECTION),

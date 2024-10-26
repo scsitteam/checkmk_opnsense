@@ -116,6 +116,9 @@ class AgentOpnSense:
     def main(self, args: Args):
         self.args = args
 
+        with SectionWriter('opnsense_firmware') as section:
+            section.append_json(self.api.get('core', 'firmware', 'status'))
+
         with SectionWriter('opnsense_carp') as section:
             section.append_json(self.api.getVipStatus['carp'])
         with SectionWriter('opnsense_vip') as section:

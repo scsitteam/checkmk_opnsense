@@ -1,0 +1,178 @@
+{
+    "api_version": "2",
+    "connection": "ok",
+    "downgrade_packages": [],
+    "download_size": "130MiB",
+    "last_check": "Fri Oct 25 16:32:25 UTC 2024",
+    "needs_reboot": "1",
+    "new_packages": [
+        {
+            "name": "py311-ldap3",
+            "repository": "OPNsense",
+            "version": "2.9.1"
+        }
+    ],
+    "os_version": "FreeBSD 14.1-RELEASE-p2",
+    "product_id": "opnsense",
+    "product_target": "opnsense",
+    "product_version": "24.7",
+    "product_abi": "24.7",
+    "reinstall_packages": [
+        {
+            "name": "py311-pandas",
+            "version": "2.0.3_2,1",
+            "repository": "OPNsense"
+        }
+    ],
+    "remove_packages": [],
+    "repository": "ok",
+    "upgrade_major_message": "",
+    "upgrade_major_version": "",
+    "upgrade_needs_reboot": "0",
+    "upgrade_packages": [
+        {
+            "name": "curl",
+            "repository": "OPNsense",
+            "current_version": "8.8.0",
+            "new_version": "8.10.1"
+        },
+        {
+            "name": "dhcrelay",
+            "repository": "OPNsense",
+            "current_version": "0.5",
+            "new_version": "1.0"
+        },
+        {
+            "name": "base",
+            "size": "133485560",
+            "repository": "OPNsense",
+            "current_version": "24.7",
+            "new_version": "24.7.6"
+        },
+        {
+            "name": "kernel",
+            "size": "34087700",
+            "repository": "OPNsense",
+            "current_version": "24.7",
+            "new_version": "24.7.6"
+        }
+    ],
+    "upgrade_sets": [],
+    "product": {
+        "product_abi": "24.7",
+        "product_arch": "amd64",
+        "product_check": {
+            "api_version": "2",
+            "connection": "ok",
+            "downgrade_packages": [],
+            "download_size": "130MiB",
+            "last_check": "Fri Oct 25 16:32:25 UTC 2024",
+            "needs_reboot": "1",
+            "new_packages": [
+                {
+                    "name": "py311-ldap3",
+                    "repository": "OPNsense",
+                    "version": "2.9.1"
+                }
+            ],
+            "os_version": "FreeBSD 14.1-RELEASE-p2",
+            "product_id": "opnsense",
+            "product_target": "opnsense",
+            "product_version": "24.7",
+            "product_abi": "24.7",
+            "reinstall_packages": [
+                {
+                    "name": "py311-pandas",
+                    "version": "2.0.3_2,1",
+                    "repository": "OPNsense"
+                }
+            ],
+            "remove_packages": [],
+            "repository": "ok",
+            "upgrade_major_message": "",
+            "upgrade_major_version": "",
+            "upgrade_needs_reboot": "0",
+            "upgrade_packages": [
+                {
+                    "name": "curl",
+                    "repository": "OPNsense",
+                    "current_version": "8.8.0",
+                    "new_version": "8.10.1"
+                },
+                {
+                    "name": "dhcrelay",
+                    "repository": "OPNsense",
+                    "current_version": "0.5",
+                    "new_version": "1.0"
+                },
+                {
+                    "name": "base",
+                    "size": "133485560",
+                    "repository": "OPNsense",
+                    "current_version": "24.7",
+                    "new_version": "24.7.6"
+                },
+                {
+                    "name": "kernel",
+                    "size": "34087700",
+                    "repository": "OPNsense",
+                    "current_version": "24.7",
+                    "new_version": "24.7.6"
+                }
+            ],
+            "upgrade_sets": []
+        },
+        "product_copyright_owner": "Deciso B.V.",
+        "product_copyright_url": "https:\/\/www.deciso.com\/",
+        "product_copyright_years": "2014-2024",
+        "product_email": "project@opnsense.org",
+        "product_hash": "f29196d01",
+        "product_id": "opnsense",
+        "product_latest": "24.7.7",
+        "product_license": [],
+        "product_log": 0,
+        "product_mirror": "https:\/\/pkg.opnsense.org\/FreeBSD:14:amd64\/24.7",
+        "product_name": "OPNsense",
+        "product_nickname": "Thriving Tiger",
+        "product_repos": "OPNsense",
+        "product_series": "24.7",
+        "product_tier": "1",
+        "product_time": "Tue Jul 23 11:51:02 UTC 2024",
+        "product_version": "24.7",
+        "product_website": "https:\/\/opnsense.org\/"
+    },
+    "all_packages": {
+        "base": {
+            "reason": "upgrade",
+            "old": "24.7",
+            "new": "24.7.6",
+            "repository": "OPNsense",
+            "name": "base"
+        },
+        "curl": {
+            "reason": "upgrade",
+            "old": "8.8.0",
+            "new": "8.10.1",
+            "repository": "OPNsense",
+            "name": "curl"
+        },
+        "dhcrelay": {
+            "reason": "upgrade",
+            "old": "0.5",
+            "new": "1.0",
+            "repository": "OPNsense",
+            "name": "dhcrelay"
+        },
+        "kernel": {
+            "reason": "upgrade",
+            "old": "24.7",
+            "new": "24.7.6",
+            "repository": "OPNsense",
+            "name": "kernel"
+        }
+    },
+    "all_sets": [],
+    "status_msg": "There are 75 updates available, total download size is 289.8MiB. This update requires a reboot.",
+    "status_reboot": "1",
+    "status": "update"
+}

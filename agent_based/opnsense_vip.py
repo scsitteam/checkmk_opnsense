@@ -72,7 +72,7 @@ def discovery_opnsense_carp(
 
 
 def check_opnsense_carp(
-    params, 
+    params: dict,
     section_opnsense_carp: _Section | None,
     section_opnsense_vip: _Section | None
 ) -> CheckResult:

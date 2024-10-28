@@ -30,6 +30,7 @@ from cmk_addons.plugins.opnsense.lib import utils
 def test_parse_json(string_table, result):
     assert utils.parse_json(string_table) == result
 
+
 @pytest.mark.parametrize('string_table, result', [
     ([], None),
     ([['{"key":"value"}']], [{'key': 'value'}]),

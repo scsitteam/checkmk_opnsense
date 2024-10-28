@@ -19,19 +19,18 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import json
 from itertools import groupby
 from cmk.agent_based.v2 import (
     AgentSection,
+    check_levels,
     CheckPlugin,
+    CheckResult,
+    DiscoveryResult,
     Metric,
     Result,
+    RuleSetType,
     Service,
     State,
-    check_levels,
-    RuleSetType,
-    DiscoveryResult,
-    CheckResult,
 )
 from cmk_addons.plugins.opnsense.lib.utils import parse_json, parse_jsonl, JSONSection, JSONLSection
 

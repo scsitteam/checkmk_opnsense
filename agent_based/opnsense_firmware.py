@@ -19,7 +19,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import json
 from datetime import datetime
 from cmk.agent_based.v2 import (
     AgentSection,
@@ -33,26 +32,21 @@ from cmk.agent_based.v2 import (
     State,
     Metric,
 )
-
-
-def parse_opnsense_firmware(string_table: list[list[str]]) -> dict:
-    if string_table:
-        return json.loads(string_table[0][0])
-    return None
+from cmk_addons.plugins.opnsense.lib.utils import parse_json, JSONSection
 
 
 agent_section_opnsense_firmware = AgentSection(
     name='opnsense_firmware',
-    parse_function=parse_opnsense_firmware,
+    parse_function=parse_json,
 )
 
 
-def discovery_opnsense_firmware(section: dict | None) -> DiscoveryResult:
+def discovery_opnsense_firmware(section: JSONSection | None) -> DiscoveryResult:
     if section:
         yield Service()
 
 
-def check_opnsense_firmware(params: dict, section: dict) -> CheckResult:
+def check_opnsense_firmware(params: dict, section: JSONSection) -> CheckResult:
     yield Result(state=State.OK, summary=f"{section['product']['product_series']} ({section['product']['product_nickname']})")
 
     if 'last_check' not in section:
@@ -85,12 +79,12 @@ check_plugin_opnsense_firmware = CheckPlugin(
 )
 
 
-def discovery_opnsense_business(section: dict | None) -> DiscoveryResult:
+def discovery_opnsense_business(section: JSONSection) -> DiscoveryResult:
     if section and section.get('product_id', None) == 'opnsense-business':
         yield Service()
 
 
-def check_opnsense_business(params: dict, section: dict) -> CheckResult:
+def check_opnsense_business(params: dict, section: JSONSection) -> CheckResult:
     valid_to = datetime.fromisoformat(section['product']['product_license']['valid_to'])
     valid_to_days = (valid_to - datetime.now()).days
     yield from check_levels(

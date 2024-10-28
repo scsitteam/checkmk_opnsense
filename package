@@ -6,6 +6,7 @@
         'cmk_addons_plugins': [
             'opnsense/graphing/opnsense_vip.py',
             'opnsense/lib/agent.py',
+            'opnsense/lib/utils.py',
             'opnsense/libexec/agent_opnsense',
             'opnsense/agent_based/opnsense_firmware.py',
             'opnsense/agent_based/opnsense_gateway.py',
@@ -19,7 +20,7 @@
     },
     'name': 'opnsense',
     'title': u'OPNsense',
-    'version': '0.0.6',
+    'version': '0.0.7',
     'version.min_required': '2.0.0',
     'version.packaged': '2.3.0',
     'version.usable_until': '2.4.0',

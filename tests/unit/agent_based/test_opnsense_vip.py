@@ -38,33 +38,6 @@ EXAMPLE_VIP_SECTION = [
 ]
 
 
-@pytest.mark.parametrize('string_table, result', [
-    ([], None),
-    (
-        [['{"allow": "1", "demotion": "0", "maintenancemode": false, "status_msg": ""}']],
-        EXAMPLE_CARP_SECTION
-    ),
-])
-def test_parse_opnsense_carp(string_table, result):
-    assert opnsense_vip.parse_opnsense_carp(string_table) == result
-
-
-@pytest.mark.parametrize('string_table, result', [
-    ([], []),
-    (
-        [
-            ['{"advbase": "1", "advskew": "0", "interface": "wan", "mode": "carp", "status": "MASTER", "status_txt": "MASTER", "subnet": "10.0.0.1", "vhid": "1", "vhid_txt": "1 (freq. 1/0)"}'],
-            ['{"advbase": "1", "advskew": "0", "interface": "lan", "mode": "carp", "status": "MASTER", "status_txt": "MASTER", "subnet": "192.168.0.1", "vhid": "2", "vhid_txt": "2 (freq. 1/0)"}'],
-            ['{"advbase": "1", "advskew": "0", "interface": "lan", "mode": "carp", "status": "BACKUP", "status_txt": "BACKUP", "subnet": "192.168.0.2", "vhid": "3", "vhid_txt": "3 (freq. 1/0)"}'],
-            ['{"advbase": "1", "advskew": "0", "interface": "lan", "mode": "vrrp2", "status": "MASTER", "status_txt": "MASTER", "subnet": "192.168.0.3", "vhid": "4", "vhid_txt": "4 (freq. 1/0)"}'],
-        ],
-        EXAMPLE_VIP_SECTION
-    ),
-])
-def test_parse_opnsense_vip(string_table, result):
-    assert list(opnsense_vip.parse_opnsense_vip(string_table)) == result
-
-
 @pytest.mark.parametrize('section, result', [
     (None, []),
     (

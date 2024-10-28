@@ -30,10 +30,9 @@ from cmk.agent_based.v2 import (
     Result,
     Service,
     State,
+    StringTable,
 )
-
-
-_Section = list[dict]
+from cmk_addons.plugins.opnsense.lib.utils import parse_jsonl
 
 
 def _parse_time(v: str) -> float:
@@ -46,11 +45,8 @@ def _parse_time(v: str) -> float:
     return float(parts[0])
 
 
-def parse_opnsense_gateway(string_table):
-    section = [
-        json.loads(line[0])
-        for line in string_table
-    ]
+def parse_opnsense_gateway(string_table: StringTable) -> dict:
+    section = parse_jsonl(string_table) or []
     for gw in section:
         if gw['loss'] == '~':
             gw['loss'] = None
@@ -74,7 +70,7 @@ agent_section_opnsense_gateway = AgentSection(
 
 
 def discovery_opnsense_gateway(
-    section: _Section,
+    section: dict,
 ) -> DiscoveryResult:
     for gw in section.values():
         if gw['delay'] is None:
@@ -85,7 +81,7 @@ def discovery_opnsense_gateway(
 def check_opnsense_gateway(
         item: str,
         params: dict,
-        section: _Section,
+        section: dict,
 ) -> CheckResult:
     if item not in section:
         return
@@ -117,7 +113,7 @@ def check_opnsense_gateway(
 
 check_plugin_opnsense_gateway = CheckPlugin(
     name='opnsense_gateway',
-    service_name='GW',
+    service_name='Gateway %s',
     discovery_function=discovery_opnsense_gateway,
     check_function=check_opnsense_gateway,
     check_default_parameters={},

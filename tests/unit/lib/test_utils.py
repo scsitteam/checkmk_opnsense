@@ -19,32 +19,21 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from cmk.graphing.v1 import graphs, metrics, perfometers, Title
+import pytest  # type: ignore[import]
+from cmk_addons.plugins.opnsense.lib import utils
 
-metric_carp_master = metrics.Metric(
-    name='carp_master',
-    title=Title('Master'),
-    unit=metrics.Unit(metrics.DecimalNotation(""), metrics.StrictPrecision(0)),
-    color=metrics.Color.GREEN,
-)
-metric_carp_backup = metrics.Metric(
-    name='carp_backup',
-    title=Title('Backup'),
-    unit=metrics.Unit(metrics.DecimalNotation(""), metrics.StrictPrecision(0)),
-    color=metrics.Color.ORANGE,
-)
 
-graph_carp = graphs.Graph(
-    name='opnsense_carp',
-    title=Title('CARP States'),
-    compound_lines=['carp_master', 'carp_backup'],
-)
+@pytest.mark.parametrize('string_table, result', [
+    ([], None),
+    ([['{"key":"value"}']], {'key': 'value'}),
+])
+def test_parse_json(string_table, result):
+    assert utils.parse_json(string_table) == result
 
-perfometer_carp = perfometers.Perfometer(
-    name='opnsense_carp',
-    focus_range=perfometers.FocusRange(
-        perfometers.Closed(0),
-        perfometers.Open('carp_master'),
-    ),
-    segments=['carp_master', 'carp_backup'],
-)
+@pytest.mark.parametrize('string_table, result', [
+    ([], None),
+    ([['{"key":"value"}']], [{'key': 'value'}]),
+    ([['{"key":"value 1"}'], ['{"key":"value 2"}']], [{'key': 'value 1'}, {'key': 'value 2'}]),
+])
+def test_parse_jsonl(string_table, result):
+    assert utils.parse_jsonl(string_table) == result

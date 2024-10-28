@@ -30,10 +30,6 @@ from cmk.agent_based.v2 import (
 )
 from cmk_addons.plugins.opnsense.agent_based import opnsense_firmware
 
-EXAMPLE_STRINGTABLE = [
-    [Path('tests/unit/agent_based/test_data/firmware_info/uptodate.json').read_text()]
-]
-
 EXAMPLE_SECTION = json.load(Path('tests/unit/agent_based/test_data/firmware_info/uptodate.json').open())
 EXAMPLE_SECTION_OUTDATED = json.load(Path('tests/unit/agent_based/test_data/firmware_info/outdated.json').open())
 EXAMPLE_SECTION_NOSTATUS = json.load(Path('tests/unit/agent_based/test_data/firmware_info/nostatus.json').open())
@@ -41,14 +37,6 @@ EXAMPLE_SECTION_BUSINESS = {
     "product_id": "opnsense-business",
     "product": {"product_license": {"valid_to": "2025-07-31"}},
 }
-
-
-@pytest.mark.parametrize('string_table, result', [
-    ([], None),
-    (EXAMPLE_STRINGTABLE, EXAMPLE_SECTION),
-])
-def test_parse_opnsense_gateway(string_table, result):
-    assert opnsense_firmware.parse_opnsense_firmware(string_table) == result
 
 
 @pytest.mark.parametrize('section, result', [

@@ -33,39 +33,24 @@ from cmk.agent_based.v2 import (
     DiscoveryResult,
     CheckResult,
 )
-
-
-_Section = list[dict]
-
-
-def parse_opnsense_carp(string_table):
-    if string_table:
-        return json.loads(string_table[0][0])
-    return None
+from cmk_addons.plugins.opnsense.lib.utils import parse_json, parse_jsonl, JSONSection, JSONLSection
 
 
 agent_section_opnsense_carp = AgentSection(
     name='opnsense_carp',
-    parse_function=parse_opnsense_carp,
+    parse_function=parse_json,
 )
-
-
-def parse_opnsense_vip(string_table):
-    return [
-        json.loads(line[0])
-        for line in string_table
-    ]
 
 
 agent_section_opnsense_vip = AgentSection(
     name='opnsense_vip',
-    parse_function=parse_opnsense_vip,
+    parse_function=parse_jsonl,
 )
 
 
 def discovery_opnsense_carp(
-    section_opnsense_carp: _Section | None,
-    section_opnsense_vip: _Section | None
+    section_opnsense_carp: JSONSection | None,
+    section_opnsense_vip: JSONLSection | None
 ) -> DiscoveryResult:
     if section_opnsense_carp:
         yield Service()
@@ -73,8 +58,8 @@ def discovery_opnsense_carp(
 
 def check_opnsense_carp(
     params: dict,
-    section_opnsense_carp: _Section | None,
-    section_opnsense_vip: _Section | None
+    section_opnsense_carp: JSONSection | None,
+    section_opnsense_vip: JSONLSection | None
 ) -> CheckResult:
     if not section_opnsense_carp:
         return
@@ -128,7 +113,7 @@ check_plugin_opnsense_carp = CheckPlugin(
 )
 
 
-def discovery_opnsense_vip(params, section):
+def discovery_opnsense_vip(params, section: JSONLSection):
     if params.get('discover', 'none') == 'none':
         return
 
@@ -149,7 +134,7 @@ def discovery_opnsense_vip(params, section):
         yield Service(item=f"{vip['interface']}@{vip['vhid']}", parameters=dict(interface=vip['interface'], vhid=vip['vhid'], discovery_status=vip['status']))
 
 
-def check_opnsense_vip(item, params, section):
+def check_opnsense_vip(item, params, section: JSONLSection):
     for vip in section:
         if vip['interface'] != params['interface']:
             continue

@@ -23,8 +23,10 @@ from typing import Optional, Sequence
 import logging
 import requests
 from functools import cached_property
+from json import JSONDecodeError
 
 from cmk.special_agents.v0_unstable.agent_common import (
+    CannotRecover,
     SectionWriter,
     special_agent_main,
 )
@@ -37,11 +39,12 @@ LOGGING = logging.getLogger('agent_opnsense')
 
 
 class OSAPI:
-    def __init__(self, url, key, secret, verify_cert=True):
+    def __init__(self, url, key, secret, timeout=None, verify_cert=True):
         self._url = url.rstrip('/')
         self._key = key
         self._secret = secret
         self._verify_cert = verify_cert
+        self.timeout = timeout
 
     @cached_property
     def _cli(self):
@@ -52,8 +55,22 @@ class OSAPI:
     def request(self, method, module, controller, command, **kwargs):
         url = f"{self._url}/{module}/{controller}/{command}"
         LOGGING.debug(f">> {method} {url}")
-        resp = self._cli.request(method, url, verify=self._verify_cert, **kwargs)
-        return resp.json()
+        try:
+            resp = self._cli.request(method, url, verify=self._verify_cert, timeout=self.timeout, **kwargs)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.exceptions.HTTPError as exc:
+            if exc.response.status_code == 401:
+                raise CannotRecover(f"Could not authenticate to {url}. Key or secret is incorrect.") from exc
+            if exc.response.status_code == 403:
+                raise CannotRecover(f"Not permited to access {url}.") from exc
+            raise CannotRecover(f"Request error {exc.response.status_code} when trying to {method} {url}") from exc
+        except requests.exceptions.ReadTimeout as exc:
+            raise CannotRecover(f"Read timeout after {self.timeout}s when trying to {method} {url}") from exc
+        except requests.exceptions.ConnectionError as exc:
+            raise CannotRecover(f"Could not {method} {url} ({exc})") from exc
+        except JSONDecodeError as exc:
+            raise CannotRecover(f"Couldn't parse JSON at {url}") from exc
 
     def get(self, module, controller, command, **kwargs):
         return self.request('GET', module, controller, command, **kwargs)
@@ -99,6 +116,7 @@ class AgentOpnSense:
                             help='OpnSense API secret.')
         parser.add_argument('-t', '--timeout',
                             dest='timeout',
+                            type=int,
                             required=False,
                             default=10,
                             help='HTTP connection timeout. (Default: 10)')
@@ -111,7 +129,7 @@ class AgentOpnSense:
 
     @cached_property
     def api(self):
-        return OSAPI(self.args.url, self.args.key, self.args.secret, self.args.verify_cert)
+        return OSAPI(self.args.url, self.args.key, self.args.secret, timeout=self.args.timeout, verify_cert=self.args.verify_cert)
 
     def main(self, args: Args):
         self.args = args

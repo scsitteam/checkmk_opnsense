@@ -3,7 +3,7 @@
 #
 # checkmk_opnsense - Checkmk extension for OPNsense
 #
-# Copyright (C) 2024  Marius Rieder <marius.rieder@scs.ch>
+# Copyright (C) 2024-2025  Marius Rieder <marius.rieder@scs.ch>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -97,19 +97,19 @@ def test_check_opnsense_carp(params, section_carp, result):
     ({}, None, []),
     ({}, EXAMPLE_VIP_SECTION, []),
     ({'discover': 'master'}, EXAMPLE_VIP_SECTION, [
-        Service(item='wan@1', parameters={'interface': 'wan', 'vhid': '1', 'discovery_status': 'MASTER'}),
-        Service(item='lan@2', parameters={'interface': 'lan', 'vhid': '2', 'discovery_status': 'MASTER'}),
-        Service(item='lan@4', parameters={'interface': 'lan', 'vhid': '4', 'discovery_status': 'MASTER'}),
+        Service(item='wan@1', parameters={'interface': 'wan', 'vhid': '1', 'discovery_status': [{'vhid': '1', 'status': 'MASTER'}]}),
+        Service(item='lan@2', parameters={'interface': 'lan', 'vhid': '2', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}]}),
+        Service(item='lan@4', parameters={'interface': 'lan', 'vhid': '4', 'discovery_status': [{'vhid': '4', 'status': 'MASTER'}]}),
     ]),
     ({'discover': 'all'}, EXAMPLE_VIP_SECTION, [
-        Service(item='wan@1', parameters={'interface': 'wan', 'vhid': '1', 'discovery_status': 'MASTER'}),
-        Service(item='lan@2', parameters={'interface': 'lan', 'vhid': '2', 'discovery_status': 'MASTER'}),
-        Service(item='lan@3', parameters={'interface': 'lan', 'vhid': '3', 'discovery_status': 'BACKUP'}),
-        Service(item='lan@4', parameters={'interface': 'lan', 'vhid': '4', 'discovery_status': 'MASTER'}),
+        Service(item='wan@1', parameters={'interface': 'wan', 'vhid': '1', 'discovery_status': [{'vhid': '1', 'status': 'MASTER'}]}),
+        Service(item='lan@2', parameters={'interface': 'lan', 'vhid': '2', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}]}),
+        Service(item='lan@3', parameters={'interface': 'lan', 'vhid': '3', 'discovery_status': [{'vhid': '3', 'status': 'BACKUP'}]}),
+        Service(item='lan@4', parameters={'interface': 'lan', 'vhid': '4', 'discovery_status': [{'vhid': '4', 'status': 'MASTER'}]}),
     ]),
     ({'discover': 'all', 'groupby': 'interface'}, EXAMPLE_VIP_SECTION, [
-        Service(item='lan', parameters={'interface': 'lan', 'discovery_status': {'2': 'MASTER', '3': 'BACKUP', '4': 'MASTER'}}),
-        Service(item='wan', parameters={'interface': 'wan', 'discovery_status': {'1': 'MASTER'}}),
+        Service(item='lan', parameters={'interface': 'lan', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}, {'vhid': '3', 'status': 'BACKUP'},{'vhid': '4', 'status': 'MASTER'}]}),
+        Service(item='wan', parameters={'interface': 'wan', 'discovery_status': [{'vhid': '1', 'status': 'MASTER'}]}),
     ]),
 ])
 def test_discovery_opnsense_vip(params, section, result):
@@ -119,35 +119,35 @@ def test_discovery_opnsense_vip(params, section, result):
 @pytest.mark.parametrize('params, result', [
     ({'interface': 'none'}, []),
     (
-        {'interface': 'wan', 'vhid': '1', 'discovery_status': 'MASTER'},
+        {'interface': 'wan', 'vhid': '1', 'discovery_status': [{'vhid': '1', 'status': 'MASTER'}]},
         [
             Result(state=State.OK, summary='MASTER: 10.0.0.1'),
         ]
     ),
     (
-        {'interface': 'wan', 'vhid': '1', 'discovery_status': 'BACKUP'},
+        {'interface': 'wan', 'vhid': '1', 'discovery_status': [{'vhid': '1', 'status': 'BACKUP'}]},
         [
             Result(state=State.WARN, summary='MASTER: 10.0.0.1 (expected: BACKUP)'),
         ]
     ),
     (
-        {'interface': 'wan', 'vhid': '1', 'expected_status': 'BACKUP', 'discovery_status': 'MASTER'},
+        {'interface': 'wan', 'vhid': '1', 'expected_status': 'BACKUP', 'discovery_status': [{'vhid': '1', 'status': 'MASTER'}]},
         [
             Result(state=State.WARN, summary='MASTER: 10.0.0.1 (expected: BACKUP)'),
         ]
     ),
     (
-        {'interface': 'wan', 'vhid': '0', 'discovery_status': 'BACKUP'},
+        {'interface': 'wan', 'vhid': '0', 'discovery_status': [{'vhid': '0', 'status': 'BACKUP'}]},
         [
         ]
     ),
     (
-        {'interface': 'wan2', 'vhid': '1', 'discovery_status': 'BACKUP'},
+        {'interface': 'wan2', 'vhid': '1', 'discovery_status': [{'vhid': '1', 'status': 'BACKUP'}]},
         [
         ]
     ),
     (
-        {'interface': 'lan', 'discovery_status': {'2': 'MASTER', '3': 'MASTER', '4': 'MASTER'}},
+        {'interface': 'lan', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}, {'vhid': '3', 'status': 'MASTER'}, {'vhid': '4', 'status': 'MASTER'}]},
         [
             Result(state=State.OK, summary='MASTER: 192.168.0.1'),
             Result(state=State.WARN, summary='BACKUP: 192.168.0.2 (expected: MASTER)'),
@@ -155,7 +155,7 @@ def test_discovery_opnsense_vip(params, section, result):
         ]
     ),
     (
-        {'interface': 'lan', 'discovery_status': {'2': 'MASTER', '3': 'BACKUP', '4': 'MASTER'}},
+        {'interface': 'lan', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}, {'vhid': '3', 'status': 'BACKUP'}, {'vhid': '4', 'status': 'MASTER'}]},
         [
             Result(state=State.OK, summary='MASTER: 192.168.0.1'),
             Result(state=State.OK, summary='BACKUP: 192.168.0.2'),
@@ -163,7 +163,7 @@ def test_discovery_opnsense_vip(params, section, result):
         ]
     ),
     (
-        {'interface': 'lan', 'expected_status': 'MASTER', 'discovery_status': {'2': 'MASTER', '3': 'BACKUP', '4': 'MASTER'}},
+        {'interface': 'lan', 'expected_status': 'MASTER', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}, {'vhid': '3', 'status': 'BACKUP'}, {'vhid': '4', 'status': 'MASTER'}]},
         [
             Result(state=State.OK, summary='MASTER: 192.168.0.1'),
             Result(state=State.WARN, summary='BACKUP: 192.168.0.2 (expected: MASTER)'),

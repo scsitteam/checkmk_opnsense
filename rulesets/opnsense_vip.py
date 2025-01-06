@@ -3,7 +3,7 @@
 #
 # checkmk_opnsense - Checkmk extension for OPNsense
 #
-# Copyright (C) 2024  Marius Rieder <marius.rieder@scs.ch>
+# Copyright (C) 2024-2025  Marius Rieder <marius.rieder@scs.ch>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@ from cmk.rulesets.v1.form_specs import (
     Integer,
     LevelDirection,
     LevelsType,
+    List,
     SimpleLevels,
     SingleChoice,
     SingleChoiceElement,
@@ -122,6 +123,18 @@ def _parameter_form_opnsense_vip():
             'vhid': DictElement(
                 parameter_form=String(
                     title=Title('VHID'),
+                ),
+                required=False,
+                render_only=True,
+            ),
+            'discovery_status': DictElement(
+                parameter_form=List(
+                    element_template=Dictionary(
+                        elements={
+                            'vhid': DictElement(parameter_form=String(title=Title('VHID'))),
+                            'status': DictElement(parameter_form=String(title=Title('Status'))),
+                        },
+                    ),
                 ),
                 required=False,
                 render_only=True,

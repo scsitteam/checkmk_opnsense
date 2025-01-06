@@ -126,11 +126,11 @@ def discovery_opnsense_vip(params, section: JSONLSection):
     if params.get('groupby', 'none') == 'interface':
         section = sorted(section, key=lambda i: i['interface'])
         for interface, vips in groupby(section, lambda i: i['interface']):
-            yield Service(item=f"{interface}", parameters=dict(interface=interface, discovery_status={v['vhid']: v['status'] for v in vips}))
+            yield Service(item=f"{interface}", parameters=dict(interface=interface, discovery_status=[{'vhid': v['vhid'], 'status': v['status']} for v in vips]))
         return
 
     for vip in section:
-        yield Service(item=f"{vip['interface']}@{vip['vhid']}", parameters=dict(interface=vip['interface'], vhid=vip['vhid'], discovery_status=vip['status']))
+        yield Service(item=f"{vip['interface']}@{vip['vhid']}", parameters=dict(interface=vip['interface'], vhid=vip['vhid'], discovery_status=[{'vhid': vip['vhid'], 'status': vip['status']}]))
 
 
 def check_opnsense_vip(item, params, section: JSONLSection):
@@ -140,11 +140,12 @@ def check_opnsense_vip(item, params, section: JSONLSection):
         if 'vhid' in params and vip['vhid'] != params['vhid']:
             continue
 
-        expected_status = params.get('discovery_status')
         if 'expected_status' in params:
             expected_status = params.get('expected_status')
-        elif 'vhid' not in params:
-            expected_status = expected_status.get(vip['vhid'])
+        else:
+            for status in params.get('discovery_status', []):
+                if status['vhid'] == vip['vhid']:
+                    expected_status = status['status']
 
         if vip['status'] == expected_status:
             yield Result(state=State.OK, summary=f"{vip['status']}: {vip['subnet']}")

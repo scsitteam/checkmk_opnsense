@@ -108,7 +108,7 @@ def test_check_opnsense_carp(params, section_carp, result):
         Service(item='lan@4', parameters={'interface': 'lan', 'vhid': '4', 'discovery_status': [{'vhid': '4', 'status': 'MASTER'}]}),
     ]),
     ({'discover': 'all', 'groupby': 'interface'}, EXAMPLE_VIP_SECTION, [
-        Service(item='lan', parameters={'interface': 'lan', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}, {'vhid': '3', 'status': 'BACKUP'},{'vhid': '4', 'status': 'MASTER'}]}),
+        Service(item='lan', parameters={'interface': 'lan', 'discovery_status': [{'vhid': '2', 'status': 'MASTER'}, {'vhid': '3', 'status': 'BACKUP'}, {'vhid': '4', 'status': 'MASTER'}]}),
         Service(item='wan', parameters={'interface': 'wan', 'discovery_status': [{'vhid': '1', 'status': 'MASTER'}]}),
     ]),
 ])

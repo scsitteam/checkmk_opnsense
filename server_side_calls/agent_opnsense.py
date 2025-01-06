@@ -3,7 +3,7 @@
 #
 # checkmk_opnsense - Checkmk extension for OPNsense
 #
-# Copyright (C) 2024  Marius Rieder <marius.rieder@scs.ch>
+# Copyright (C) 2024-2025  Marius Rieder <marius.rieder@scs.ch>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -32,6 +32,10 @@ class Params(BaseModel):
     key: str
     secret: Secret | None = None
     ignore_cert: str = 'check_cert'
+    firmware: bool
+    vip: bool
+    gateway: bool
+    ipsec: bool
 
 
 def commands_function(
@@ -45,6 +49,11 @@ def commands_function(
     ]
     if params.ignore_cert != 'check_cert':
         command_arguments += ['--ignore-cert']
+
+    for part in ['firmware', 'vip', 'gateway', 'ipsec']:
+        if getattr(params, part, False):
+            command_arguments += [f"--{part}"]
+
     yield SpecialAgentCommand(command_arguments=command_arguments)
 
 

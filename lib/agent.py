@@ -3,7 +3,7 @@
 #
 # checkmk_opnsense - Checkmk Extension for monitoring OpnSense.
 #
-# Copyright (C) 2024  Marius Rieder <marius.rieder@scs.ch>
+# Copyright (C) 2024-2025  Marius Rieder <marius.rieder@scs.ch>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -124,6 +124,22 @@ class AgentOpnSense:
                             dest='verify_cert',
                             action='store_false',
                             help='Do not verify the SSL cert from the REST andpoint.')
+        parser.add_argument('--firmware',
+                            dest='firmware',
+                            action='store_true',
+                            help='Fetch Firmaware status')
+        parser.add_argument('--vip',
+                            dest='vip',
+                            action='store_true',
+                            help='Fetch VIP status')
+        parser.add_argument('--gateway',
+                            dest='gateway',
+                            action='store_true',
+                            help='Fetch Gateway status')
+        parser.add_argument('--ipsec',
+                            dest='ipsec',
+                            action='store_true',
+                            help='Fetch IPSec status')
 
         return parser.parse_args(argv)
 
@@ -134,12 +150,31 @@ class AgentOpnSense:
     def main(self, args: Args):
         self.args = args
 
-        with SectionWriter('opnsense_firmware') as section:
-            section.append_json(self.api.get('core', 'firmware', 'status'))
+        if self.args.firmware:
+            with SectionWriter('opnsense_firmware') as section:
+                section.append_json(self.api.get('core', 'firmware', 'status'))
 
-        with SectionWriter('opnsense_carp') as section:
-            section.append_json(self.api.getVipStatus['carp'])
-        with SectionWriter('opnsense_vip') as section:
-            section.append_json(r for r in self.api.getVipStatus['vips'])
-        with SectionWriter('opnsense_gateway') as section:
-            section.append_json(r for r in self.api.get('routes', 'gateway', 'status')['items'])
+        if self.args.vip:
+            with SectionWriter('opnsense_carp') as section:
+                section.append_json(self.api.getVipStatus['carp'])
+            with SectionWriter('opnsense_vip') as section:
+                section.append_json(r for r in self.api.getVipStatus['vips'])
+
+        if self.args.gateway:
+            with SectionWriter('opnsense_gateway') as section:
+                section.append_json(r for r in self.api.get('routes', 'gateway', 'status')['items'])
+
+        if self.args.ipsec:
+            ipsec_connections = [
+                conn
+                for conn in self.api.post('ipsec', 'connections', 'search_connection')['rows']
+                if conn['enabled'] == "1"
+            ]
+
+            with SectionWriter('opnsense_ipsec') as section:
+                section.append_json(r for r in ipsec_connections)
+            with SectionWriter('opnsense_ipsec_phase1') as section:
+                section.append_json(r for r in self.api.get('ipsec', 'sessions', 'search_phase1')['rows'])
+            with SectionWriter('opnsense_ipsec_phase2') as section:
+                for conn in ipsec_connections:
+                    section.append_json(r for r in self.api.post('ipsec', 'sessions', 'search_phase2', json=dict(id=conn['uuid']))['rows'])

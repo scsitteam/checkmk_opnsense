@@ -3,7 +3,7 @@
 #
 # checkmk_opnsense - Checkmk extension for OPNsense
 #
-# Copyright (C) 2024  Marius Rieder <marius.rieder@scs.ch>
+# Copyright (C) 2024-2025  Marius Rieder <marius.rieder@scs.ch>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,8 +19,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from cmk.rulesets.v1 import Title, Help
+from cmk.rulesets.v1 import Title, Help, Label
 from cmk.rulesets.v1.form_specs import (
+    BooleanChoice,
     DefaultValue,
     DictElement,
     Dictionary,
@@ -37,6 +38,20 @@ from cmk.rulesets.v1.rule_specs import SpecialAgent, Topic
 def migrate_bool_to_choice(model: object) -> str:
     if isinstance(model, bool):
         return 'ignore_cert' if model else 'check_cert'
+    return model
+
+
+def migrate_special_agents_opnsense(model: dict) -> dict:
+    defaults = dict(
+        firmware=True,
+        vip=True,
+        gateway=True,
+        ipsec=True,
+    )
+    for key in defaults:
+        if key in model:
+            continue
+        model[key] = defaults[key]
     return model
 
 
@@ -81,7 +96,36 @@ def _form_special_agents_opnsense() -> Dictionary:
                 ),
                 required=True,
             ),
-        }
+            'firmware': DictElement(
+                parameter_form=BooleanChoice(
+                    label=Label('Fetch Firmware status'),
+                    prefill=DefaultValue('true'),
+                ),
+                required=True,
+            ),
+            'vip': DictElement(
+                parameter_form=BooleanChoice(
+                    label=Label('Fetch VIP status'),
+                    prefill=DefaultValue('true'),
+                ),
+                required=True,
+            ),
+            'gateway': DictElement(
+                parameter_form=BooleanChoice(
+                    label=Label('Fetch Gateway status'),
+                    prefill=DefaultValue('true'),
+                ),
+                required=True,
+            ),
+            'ipsec': DictElement(
+                parameter_form=BooleanChoice(
+                    label=Label('Fetch IPSec status'),
+                    prefill=DefaultValue('true'),
+                ),
+                required=True,
+            ),
+        },
+        migrate=migrate_special_agents_opnsense,
     )
 
 

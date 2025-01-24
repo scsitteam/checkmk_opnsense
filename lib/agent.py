@@ -92,6 +92,56 @@ class OSAPI:
             current = current + 1
         return dict(vips=vips, carp=carp)
 
+    def getIpsecChild(self, connection):
+        child = []
+        current = 1
+        while True:
+            page = self.post('ipsec', 'connections', 'search_child', json=dict(connection=connection, current=current))
+            child.extend(c for c in page['rows'] if c['enabled'] == "1")
+            if page['total'] <= (page['rowCount'] * (page['current'] + 1)):
+                break
+            current = current + 1
+        return child
+
+    @cached_property
+    def getIpsecConnections(self):
+        conn = []
+        current = 1
+        while True:
+            page = self.post('ipsec', 'connections', 'search_connection', json=dict(current=current))
+            for c in page['rows']:
+                if c['enabled'] != "1":
+                    continue
+                c['child'] = self.getIpsecChild(c['uuid'])
+                conn.append(c)
+            if page['total'] <= (page['rowCount'] * (page['current'] + 1)):
+                break
+            current = current + 1
+        return conn
+
+    @cached_property
+    def getIpsecPhase1(self):
+        conn = []
+        current = 1
+        while True:
+            page = self.post('ipsec', 'sessions', 'search_phase1', json=dict(current=current))
+            conn.extend(page['rows'])
+            if page['total'] <= (page['rowCount'] * (page['current'] + 1)):
+                break
+            current = current + 1
+        return conn
+
+    def getIpsecPhase2(self, id):
+        conn = []
+        current = 1
+        while True:
+            page = self.post('ipsec', 'sessions', 'search_phase2', json=dict(id=id, current=current))
+            conn.extend(c for c in page['rows'] if c['state'] == 'INSTALLED')
+            if page['total'] <= (page['rowCount'] * (page['current'] + 1)):
+                break
+            current = current + 1
+        return conn
+
 
 class AgentOpnSense:
     '''Checkmk special Agent for OpnSense'''
@@ -165,16 +215,10 @@ class AgentOpnSense:
                 section.append_json(r for r in self.api.get('routes', 'gateway', 'status')['items'])
 
         if self.args.ipsec:
-            ipsec_connections = [
-                conn
-                for conn in self.api.post('ipsec', 'connections', 'search_connection')['rows']
-                if conn['enabled'] == "1"
-            ]
-
             with SectionWriter('opnsense_ipsec') as section:
-                section.append_json(r for r in ipsec_connections)
+                section.append_json(r for r in self.api.getIpsecConnections)
             with SectionWriter('opnsense_ipsec_phase1') as section:
-                section.append_json(r for r in self.api.get('ipsec', 'sessions', 'search_phase1')['rows'])
+                section.append_json(r for r in self.api.getIpsecPhase1)
             with SectionWriter('opnsense_ipsec_phase2') as section:
-                for conn in ipsec_connections:
-                    section.append_json(r for r in self.api.post('ipsec', 'sessions', 'search_phase2', json=dict(id=conn['uuid']))['rows'])
+                for conn in self.api.getIpsecConnections:
+                    section.append_json(r for r in self.api.getIpsecPhase2(conn['uuid']))

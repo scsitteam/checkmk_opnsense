@@ -73,5 +73,5 @@ rule_spec_opnsense_ipsec = CheckParameters(
     parameter_form=_parameter_form_opnsense_ipsec,
     title=Title('OPNsense IPSec Status'),
     help_text=Help('This rule configures thresholds for OPNsense IPSec status.'),
-    condition=HostAndItemCondition(),
+    condition=HostAndItemCondition(item_title=Title('IPSec Connection')),
 )

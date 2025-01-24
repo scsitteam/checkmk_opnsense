@@ -73,9 +73,11 @@ def test_discovery_opnsense_ipsec(section_opnsense_ipsec, section_opnsense_ipsec
         'IPSec1', {'discovered': {'version': 'IKEv1', 'phase2': [{'name': 'IPSec1 Child', 'encr_alg': 'AES_CBC', 'integ_alg': 'HMAC_SHA2_256_128', 'protocol': 'ESP'}]}},
         EXAMPLE_IPSEC_SECTION, EXAMPLE_IPSEC_PHASE1_SECTION, EXAMPLE_IPSEC_PHASE2_SECTION,
         [
-            Result(state=State.OK, summary='Phase1: IKEv1'),
+            Result(state=State.OK, summary='IKEv1'),
             Result(state=State.OK, notice='Install Time: 42 seconds'),
             Metric('install_time', 42.0),
+            Result(state=State.OK, notice='Childs: 1'),
+            Metric('childs', 1.0, boundaries=(0.0, None)),
             Result(state=State.OK, notice='IPSec1 Child: ESP HMAC_SHA2_256_128 AES_CBC'),
         ]
     ),
@@ -83,9 +85,11 @@ def test_discovery_opnsense_ipsec(section_opnsense_ipsec, section_opnsense_ipsec
         'IPSec1', {'discovered': {'version': 'IKEv2', 'phase2': [{'name': 'IPSec1 Child', 'encr_alg': 'AES_BCB', 'integ_alg': 'HMAC_SHA2_2_128', 'protocol': 'ESP'}]}},
         EXAMPLE_IPSEC_SECTION, EXAMPLE_IPSEC_PHASE1_SECTION, EXAMPLE_IPSEC_PHASE2_SECTION,
         [
-            Result(state=State.WARN, summary='Phase1: IKEv1 (expected: IKEv2)'),
+            Result(state=State.WARN, summary='IKEv1 (expected: IKEv2)'),
             Result(state=State.OK, notice='Install Time: 42 seconds'),
             Metric('install_time', 42.0),
+            Result(state=State.OK, notice='Childs: 1'),
+            Metric('childs', 1.0, boundaries=(0.0, None)),
             Result(state=State.WARN, summary='IPSec1 Child: ESP HMAC_SHA2_256_128 (expected: HMAC_SHA2_2_128) AES_CBC (expected: AES_BCB)'),
         ]
     ),
@@ -93,9 +97,11 @@ def test_discovery_opnsense_ipsec(section_opnsense_ipsec, section_opnsense_ipsec
         'IPSec1', {'discovered': {'version': 'IKEv1', 'phase2': [{'name': 'IPSec1 Child', 'encr_alg': 'AES_CBC', 'integ_alg': 'HMAC_SHA2_256_128', 'protocol': 'ESP'}]}},
         EXAMPLE_IPSEC_SECTION, EXAMPLE_IPSEC_PHASE1_SECTION, [],
         [
-            Result(state=State.OK, summary='Phase1: IKEv1'),
+            Result(state=State.OK, summary='IKEv1'),
             Result(state=State.OK, notice='Install Time: 42 seconds'),
             Metric('install_time', 42.0),
+            Result(state=State.OK, notice='Childs: 0'),
+            Metric('childs', 0.0, boundaries=(0.0, None)),
             Result(state=State.WARN, summary='IPSec1 Child: not found'),
         ]
     ),

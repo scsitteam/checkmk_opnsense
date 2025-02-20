@@ -19,7 +19,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from cmk.graphing.v1 import graphs, metrics, perfometers, Title, translations
+from cmk.graphing.v1 import graphs, metrics, perfometers, Title
 
 metric_install_time = metrics.Metric(
     name='install_time',

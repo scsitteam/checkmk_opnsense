@@ -174,6 +174,10 @@ class AgentOpnSense:
                             dest='verify_cert',
                             action='store_false',
                             help='Do not verify the SSL cert from the REST andpoint.')
+        parser.add_argument('--firewall',
+                            dest='firewall',
+                            action='store_true',
+                            help='Fetch Firewall status')
         parser.add_argument('--firmware',
                             dest='firmware',
                             action='store_true',
@@ -199,6 +203,13 @@ class AgentOpnSense:
 
     def main(self, args: Args):
         self.args = args
+
+        if self.args.firewall:
+            pass
+            with SectionWriter('opnsense_pf_states') as section:
+                section.append_json(self.api.get('diagnostics', 'firewall', 'pf_states'))
+            with SectionWriter('opnsense_alias_table') as section:
+                section.append_json(self.api.get('firewall', 'alias', 'get_table_size'))
 
         if self.args.firmware:
             with SectionWriter('opnsense_firmware') as section:

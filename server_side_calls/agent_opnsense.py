@@ -32,6 +32,7 @@ class Params(BaseModel):
     key: str
     secret: Secret | None = None
     ignore_cert: str = 'check_cert'
+    firewall: bool
     firmware: bool
     vip: bool
     gateway: bool
@@ -50,7 +51,7 @@ def commands_function(
     if params.ignore_cert != 'check_cert':
         command_arguments += ['--ignore-cert']
 
-    for part in ['firmware', 'vip', 'gateway', 'ipsec']:
+    for part in ['firewall', 'firmware', 'vip', 'gateway', 'ipsec']:
         if getattr(params, part, False):
             command_arguments += [f"--{part}"]
 

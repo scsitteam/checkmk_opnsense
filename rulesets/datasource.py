@@ -43,6 +43,7 @@ def migrate_bool_to_choice(model: object) -> str:
 
 def migrate_special_agents_opnsense(model: dict) -> dict:
     defaults = dict(
+        firewall=True,
         firmware=True,
         vip=True,
         gateway=True,
@@ -93,6 +94,13 @@ def _form_special_agents_opnsense() -> Dictionary:
                     ],
                     prefill=DefaultValue('check_cert'),
                     migrate=migrate_bool_to_choice,
+                ),
+                required=True,
+            ),
+            'firewall': DictElement(
+                parameter_form=BooleanChoice(
+                    label=Label('Fetch Firewall status'),
+                    prefill=DefaultValue('true'),
                 ),
                 required=True,
             ),

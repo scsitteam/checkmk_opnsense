@@ -246,6 +246,10 @@ def discovery_opnsense_ipsec_child(
         yield Service(item=f"{conn['description']} {child['local-ts']} > {child['remote-ts']}")
 
 
+def render_timespan(seconds: float) -> str:
+    return f"{render.timespan(-seconds)} ago" if seconds < 0 else render.timespan(seconds)
+
+
 def check_opnsense_ipsec_child(
     item: str,
     section_opnsense_ipsec: JSONSection | None,
@@ -278,7 +282,7 @@ def check_opnsense_ipsec_child(
         yield from check_levels(
             value=float(child['rekey-time']),
             metric_name='rekey_time',
-            render_func=render.timespan,
+            render_func=render_timespan,
             label='Rekey Time',
             notice_only=True
         )
@@ -286,7 +290,7 @@ def check_opnsense_ipsec_child(
         yield from check_levels(
             value=float(child['life-time']),
             metric_name='life_time',
-            render_func=render.timespan,
+            render_func=render_timespan,
             label='Life Time',
             notice_only=True
         )

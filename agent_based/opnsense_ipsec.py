@@ -77,7 +77,7 @@ def discovery_opnsense_ipsec(
             {
                 'name': phase2['phase2desc'],
                 'encr_alg': phase2['encr-alg'],
-                'integ_alg': phase2['integ-alg'],
+                'integ_alg': phase2.get('integ-alg', None),
                 'protocol': phase2['protocol'],
             }
             for phase2 in section_opnsense_ipsec_phase2
@@ -189,11 +189,12 @@ def check_opnsense_ipsec(
                     notice.append(f"{phase2['protocol']} (expected: {dphase2['protocol']})")
                     state = State.WARN
 
-                if dphase2['integ_alg'] == phase2['integ-alg']:
-                    notice.append(phase2['integ-alg'])
-                else:
-                    notice.append(f"{phase2['integ-alg']} (expected: {dphase2['integ_alg']})")
-                    state = State.WARN
+                if dphase2['integ_alg']:
+                    if dphase2['integ_alg'] == phase2.get('integ-alg', None):
+                        notice.append(phase2.get('integ-alg', None))
+                    else:
+                        notice.append(f"{phase2.get('integ-alg', None)} (expected: {dphase2['integ_alg']})")
+                        state = State.WARN
 
                 if dphase2['encr_alg'] == phase2['encr-alg']:
                     notice.append(phase2['encr-alg'])
@@ -267,7 +268,8 @@ def check_opnsense_ipsec_child(
 
         yield Result(state=State.OK, summary=f"{child['protocol']}")
         yield Result(state=State.OK, summary=f"E:{child['encr-alg']}:{child['encr-keysize']}")
-        yield Result(state=State.OK, summary=f"I:{child['integ-alg']}")
+        if 'integ-alg' in child:
+            yield Result(state=State.OK, summary=f"I:{child['integ-alg']}")
         if 'dh-group' in child:
             yield Result(state=State.OK, summary=f"D:{child['dh-group']}")
 
@@ -295,7 +297,7 @@ def check_opnsense_ipsec_child(
             notice_only=True
         )
 
-
+ 
 check_plugin_opnsense_ipsec_child = CheckPlugin(
     name='opnsense_ipsec_child',
     sections=['opnsense_ipsec', 'opnsense_ipsec_phase2'],

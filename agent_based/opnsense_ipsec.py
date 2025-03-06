@@ -297,7 +297,7 @@ def check_opnsense_ipsec_child(
             notice_only=True
         )
 
- 
+
 check_plugin_opnsense_ipsec_child = CheckPlugin(
     name='opnsense_ipsec_child',
     sections=['opnsense_ipsec', 'opnsense_ipsec_phase2'],

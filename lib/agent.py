@@ -194,6 +194,10 @@ class AgentOpnSense:
                             dest='ipsec',
                             action='store_true',
                             help='Fetch IPSec status')
+        parser.add_argument('--unbound',
+                            dest='unbound',
+                            action='store_true',
+                            help='Fetch Unbound status')
 
         return parser.parse_args(argv)
 
@@ -233,3 +237,7 @@ class AgentOpnSense:
             with SectionWriter('opnsense_ipsec_phase2') as section:
                 for conn in self.api.getIpsecConnections:
                     section.append_json(r for r in self.api.getIpsecPhase2(conn['uuid']))
+
+        if self.args.unbound:
+            with SectionWriter('opnsense_unbound') as section:
+                section.append_json(self.api.get('unbound', 'diagnostics', 'stats'))

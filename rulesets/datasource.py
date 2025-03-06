@@ -48,6 +48,7 @@ def migrate_special_agents_opnsense(model: dict) -> dict:
         vip=True,
         gateway=True,
         ipsec=True,
+        unbound=True,
     )
     for key in defaults:
         if key in model:
@@ -128,6 +129,13 @@ def _form_special_agents_opnsense() -> Dictionary:
             'ipsec': DictElement(
                 parameter_form=BooleanChoice(
                     label=Label('Fetch IPSec status'),
+                    prefill=DefaultValue('true'),
+                ),
+                required=True,
+            ),
+            'unbound': DictElement(
+                parameter_form=BooleanChoice(
+                    label=Label('Fetch Unbound status'),
                     prefill=DefaultValue('true'),
                 ),
                 required=True,

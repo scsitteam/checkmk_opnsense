@@ -16,6 +16,18 @@ Checkmk Extensions to monitor [OPNsense](https://opnsense.org/) using the [API](
 * VirtualIP - Can be configured to discover and check the status of individual VirtualIPs. Optionaly groubed by Interface.
 * Gateway - Checks status and monitoring of gateways with monitoring enabled.
 
+### Privileges
+
+| Check    | Priveleges                                      | External Dependencies |
+| -------- | ----------------------------------------------- | --- |
+| firewall | page-system-login-logout, page-firewall-aliases | |
+| firmware | page-system-firmware-manualupdate               | | 
+| vip      | page-status-carp                                | |
+| gateway  | page-system-gateways                            | |
+| ipsec    | page-vpn-ipsec-connections, page-status-ipsec   | |
+| unbound  | page-services-unbound                           | |
+| snapshot | page-snapshots                                  | |
+| ssl      | page-system-certmanager                         | [SSL-Certificates](https://exchange.checkmk.com/p/sslcertificates) |
 
 ## Development
 

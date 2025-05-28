@@ -38,6 +38,8 @@ class Params(BaseModel):
     gateway: bool
     ipsec: bool
     unbound: bool = False
+    snapshot: bool = False
+    ssl: bool = False
 
 
 def commands_function(
@@ -52,7 +54,7 @@ def commands_function(
     if params.ignore_cert != 'check_cert':
         command_arguments += ['--ignore-cert']
 
-    for part in ['firewall', 'firmware', 'vip', 'gateway', 'ipsec', 'unbound']:
+    for part in ['firewall', 'firmware', 'vip', 'gateway', 'ipsec', 'unbound', 'snapshot', 'ssl']:
         if getattr(params, part, False):
             command_arguments += [f"--{part}"]
 

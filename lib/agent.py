@@ -198,6 +198,14 @@ class AgentOpnSense:
                             dest='unbound',
                             action='store_true',
                             help='Fetch Unbound status')
+        parser.add_argument('--snapshot',
+                            dest='snapshot',
+                            action='store_true',
+                            help='Fetch Snapshot status')
+        parser.add_argument('--ssl',
+                            dest='ssl',
+                            action='store_true',
+                            help='Fetch Certificate status')
 
         return parser.parse_args(argv)
 
@@ -241,3 +249,20 @@ class AgentOpnSense:
         if self.args.unbound:
             with SectionWriter('opnsense_unbound') as section:
                 section.append_json(self.api.get('unbound', 'diagnostics', 'stats'))
+
+        if self.args.snapshot:
+            with SectionWriter('opnsense_snapshot') as section:
+                section.append_json(r for r in self.api.get('core', 'snapshots', 'search')['rows'])
+
+        if self.args.ssl:
+            with SectionWriter('sslcertificates') as section:
+                for cert in self.api.get('trust', 'cert', 'search')['rows']:
+                    if cert['is_user'] == '1' or cert['in_use'] == '0':
+                        continue
+                    section.append_json(dict(
+                        file=cert['descr'],
+                        starts=int(cert['valid_from']),
+                        expires=int(cert['valid_to']),
+                        subj=cert['commonname'],
+                        issuer=cert['caref'],
+                    ))

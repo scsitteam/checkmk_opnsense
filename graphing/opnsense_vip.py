@@ -23,21 +23,34 @@ from cmk.graphing.v1 import graphs, metrics, perfometers, Title
 
 metric_carp_master = metrics.Metric(
     name='carp_master',
-    title=Title('Master'),
+    title=Title('CARP Master'),
     unit=metrics.Unit(metrics.DecimalNotation(""), metrics.StrictPrecision(0)),
     color=metrics.Color.GREEN,
 )
 metric_carp_backup = metrics.Metric(
     name='carp_backup',
-    title=Title('Backup'),
+    title=Title('CARP Backup'),
     unit=metrics.Unit(metrics.DecimalNotation(""), metrics.StrictPrecision(0)),
     color=metrics.Color.ORANGE,
 )
 
+metric_ipalias_master = metrics.Metric(
+    name='ipalias_master',
+    title=Title('IPAlias Master'),
+    unit=metrics.Unit(metrics.DecimalNotation(""), metrics.StrictPrecision(0)),
+    color=metrics.Color.LIGHT_GREEN,
+)
+metric_ipalias_backup = metrics.Metric(
+    name='ipalias_backup',
+    title=Title('IPAlias Backup'),
+    unit=metrics.Unit(metrics.DecimalNotation(""), metrics.StrictPrecision(0)),
+    color=metrics.Color.LIGHT_ORANGE,
+)
+
 graph_carp = graphs.Graph(
     name='opnsense_carp',
-    title=Title('CARP States'),
-    compound_lines=['carp_master', 'carp_backup'],
+    title=Title('VirtualIP States'),
+    compound_lines=['carp_master', 'carp_backup', 'ipalias_master', 'ipalias_backup'],
 )
 
 perfometer_carp = perfometers.Perfometer(
@@ -46,5 +59,5 @@ perfometer_carp = perfometers.Perfometer(
         perfometers.Closed(0),
         perfometers.Open('carp_master'),
     ),
-    segments=['carp_master', 'carp_backup'],
+    segments=['carp_master', 'carp_backup', 'ipalias_master', 'ipalias_backup'],
 )

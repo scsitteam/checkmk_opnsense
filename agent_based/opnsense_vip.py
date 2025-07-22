@@ -70,34 +70,61 @@ def check_opnsense_carp(
         yield Result(state=State.WARN, summary='Maintenance Mode is active')
 
     if section_opnsense_vip or True:
-        master = 0
-        backup = 0
+        carp_master = 0
+        carp_backup = 0
+        ipalias_master = 0
+        ipalias_backup = 0
         for vip in section_opnsense_vip:
-            if vip['mode'] != 'carp':
-                continue
-            if vip['status'] == 'MASTER':
-                master += 1
-            else:
-                backup += 1
+            if vip['mode'] == 'carp':
+                if vip['status'] == 'MASTER':
+                    carp_master += 1
+                else:
+                    carp_backup += 1
+            elif vip['mode'] == 'ipalias':
+                if vip['status'] == 'MASTER':
+                    ipalias_master += 1
+                else:
+                    ipalias_backup += 1
         yield from check_levels(
-            value=master,
+            value=carp_master,
             levels_lower=params.get('master_levels_lower', None),
             levels_upper=params.get('master_levels_upper', None),
             metric_name='carp_master',
             render_func=int.__str__,
-            label='Master',
-            boundaries=(0, master + backup),
-            notice_only=master == 0
+            label='CARP Master',
+            boundaries=(0, carp_master + carp_backup),
+            notice_only=carp_master == 0
         )
         yield from check_levels(
-            value=backup,
+            value=carp_backup,
             levels_lower=params.get('backup_levels_lower', None),
             levels_upper=params.get('backup_levels_upper', None),
             metric_name='carp_backup',
             render_func=int.__str__,
-            label='Backup',
-            boundaries=(0, master + backup),
-            notice_only=backup == 0
+            label='CARP Backup',
+            boundaries=(0, carp_master + carp_backup),
+            notice_only=carp_backup == 0
+        )
+
+        yield from check_levels(
+            value=ipalias_master,
+            levels_lower=params.get('master_levels_lower', None),
+            levels_upper=params.get('master_levels_upper', None),
+            metric_name='ipalias_master',
+            render_func=int.__str__,
+            label='IPAlias Master',
+            boundaries=(0, ipalias_master + ipalias_backup),
+            notice_only=carp_master == 0
+        )
+        yield from check_levels(
+            value=ipalias_backup,
+            levels_lower=params.get('backup_levels_lower', None),
+            levels_upper=params.get('backup_levels_upper', None),
+            metric_name='ipalias_backup',
+            render_func=int.__str__,
+            label='IPAlias Backup',
+            boundaries=(0, ipalias_master + ipalias_backup),
+            notice_only=ipalias_backup == 0
         )
 
 

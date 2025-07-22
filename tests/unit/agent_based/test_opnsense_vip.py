@@ -57,10 +57,14 @@ def test_discovery_opnsense_carp(section, result):
         [
             Result(state=State.OK, summary='OK'),
             Metric('demotion', 0.0),
-            Result(state=State.OK, summary='Master: 2'),
+            Result(state=State.OK, summary='CARP Master: 2'),
             Metric('carp_master', 2.0, boundaries=(0.0, 3.0)),
-            Result(state=State.OK, summary='Backup: 1'),
+            Result(state=State.OK, summary='CARP Backup: 1'),
             Metric('carp_backup', 1.0, boundaries=(0.0, 3.0)),
+            Result(state=State.OK, summary='IPAlias Master: 0'),
+            Metric('ipalias_master', 0.0, boundaries=(0.0, 0.0)),
+            Result(state=State.OK, notice='IPAlias Backup: 0'),
+            Metric('ipalias_backup', 0.0, boundaries=(0.0, 0.0)),
         ]
     ),
     (
@@ -70,10 +74,14 @@ def test_discovery_opnsense_carp(section, result):
             Result(state=State.OK, summary='Foo'),
             Metric('demotion', 240.0),
             Result(state=State.WARN, summary='Maintenance Mode is active'),
-            Result(state=State.OK, summary='Master: 2'),
+            Result(state=State.OK, summary='CARP Master: 2'),
             Metric('carp_master', 2.0, boundaries=(0.0, 3.0)),
-            Result(state=State.OK, summary='Backup: 1'),
+            Result(state=State.OK, summary='CARP Backup: 1'),
             Metric('carp_backup', 1.0, boundaries=(0.0, 3.0)),
+            Result(state=State.OK, summary='IPAlias Master: 0'),
+            Metric('ipalias_master', 0.0, boundaries=(0.0, 0.0)),
+            Result(state=State.OK, notice='IPAlias Backup: 0'),
+            Metric('ipalias_backup', 0.0, boundaries=(0.0, 0.0)),
         ]
     ),
     (
@@ -82,10 +90,14 @@ def test_discovery_opnsense_carp(section, result):
         [
             Result(state=State.OK, summary='Foo'),
             Metric('demotion', 0.0),
-            Result(state=State.WARN, summary='Master: 2 (warn/crit below 3/2)'),
+            Result(state=State.WARN, summary='CARP Master: 2 (warn/crit below 3/2)'),
             Metric('carp_master', 2.0, boundaries=(0.0, 3.0)),
-            Result(state=State.CRIT, summary='Backup: 1 (warn/crit at 1/1)'),
+            Result(state=State.CRIT, summary='CARP Backup: 1 (warn/crit at 1/1)'),
             Metric('carp_backup', 1.0, levels=(1.0, 1.0), boundaries=(0.0, 3.0)),
+            Result(state=State.CRIT, summary='IPAlias Master: 0 (warn/crit below 3/2)'),
+            Metric('ipalias_master', 0.0, boundaries=(0.0, 0.0)),
+            Result(state=State.OK, notice='IPAlias Backup: 0'),
+            Metric('ipalias_backup', 0.0, levels=(1.0, 1.0), boundaries=(0.0, 0.0)),
         ]
     ),
 ])

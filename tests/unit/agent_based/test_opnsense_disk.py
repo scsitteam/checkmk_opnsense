@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
+#
+# checkmk_opnsense - Checkmk extension for OPNsense
+#
+# Copyright (C) 2025  Marius Rieder <marius.rieder@scs.ch>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+import pytest  # type: ignore[import]
+from cmk.plugins.lib.df import DfBlock
+from cmk_addons.plugins.opnsense.agent_based import opnsense_disk
+
+EXAMPLE_STRINGTABLE = [['''
+{"devices":[
+    {"device":"zroot/ROOT/default","type":"zfs","blocks":"910G","used":"2.5G","available":"907G","used_pct":0,"mountpoint":"/"},
+    {"device":"/dev/gpt/efifs","type":"msdosfs","blocks":"256M","used":"887K","available":"255M","used_pct":0,"mountpoint":"/boot/efi"},
+    {"device":"zroot","type":"zfs","blocks":"907G","used":"96M","available":"907G","used_pct":0,"mountpoint":"/zroot"}]
+}''']]
+
+EXAMPLE_SECTION = (
+    [
+        DfBlock(device='zroot/ROOT/default', fs_type='zfs', size_mb=931840, avail_mb=929280, reserved_mb=0.0, mountpoint='/', uuid=None),
+        DfBlock(device='/dev/gpt/efifs', fs_type='msdosfs', size_mb=256, avail_mb=256, reserved_mb=0.0, mountpoint='/boot/efi', uuid=None),
+        DfBlock(device='zroot', fs_type='zfs', size_mb=928768, avail_mb=928672, reserved_mb=0.0, mountpoint='/zroot', uuid=None),
+    ], []
+)
+
+
+@pytest.mark.parametrize('string_table, result', [
+    ([], ([], [])),
+    (EXAMPLE_STRINGTABLE, EXAMPLE_SECTION),
+])
+def test_parse_opnsense_gateway(string_table, result):
+    assert opnsense_disk.parse_opnsense_disk(string_table) == result

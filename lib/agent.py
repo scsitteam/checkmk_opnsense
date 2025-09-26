@@ -174,6 +174,11 @@ class AgentOpnSense:
                             dest='verify_cert',
                             action='store_false',
                             help='Do not verify the SSL cert from the REST andpoint.')
+
+        parser.add_argument('--interface',
+                            dest='interface',
+                            action='store_true',
+                            help='Fetch Interface status')
         parser.add_argument('--firewall',
                             dest='firewall',
                             action='store_true',
@@ -216,16 +221,27 @@ class AgentOpnSense:
     def main(self, args: Args):
         self.args = args
 
+        with SectionWriter('opnsense_system') as section:
+            section.append_json(self.api.get('core', 'firmware', 'status'))
+
+        system_time = self.api.get('diagnostics', 'system', 'system_time')
+        with SectionWriter('opnsense_uptime') as section:
+            section.append_json({key: system_time[key] for key in ['datetime', 'boottime']})
+        with SectionWriter('opnsense_load') as section:
+            section.append(system_time['loadavg'])
+
+        with SectionWriter('opnsense_disk') as section:
+            section.append_json(self.api.get('diagnostics', 'system', 'system_disk')))
+
+        if self.args.interface:
+            with SectionWriter('opnsense_interface') as section:
+                section.append_json(self.api.get('diagnostics', 'traffic', 'interface')
+
         if self.args.firewall:
-            pass
             with SectionWriter('opnsense_pf_states') as section:
                 section.append_json(self.api.get('diagnostics', 'firewall', 'pf_states'))
             with SectionWriter('opnsense_alias_table') as section:
                 section.append_json(self.api.get('firewall', 'alias', 'get_table_size'))
-
-        if self.args.firmware:
-            with SectionWriter('opnsense_firmware') as section:
-                section.append_json(self.api.get('core', 'firmware', 'status'))
 
         if self.args.vip:
             with SectionWriter('opnsense_carp') as section:

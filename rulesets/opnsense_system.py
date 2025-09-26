@@ -32,15 +32,17 @@ from cmk.rulesets.v1.form_specs import (
     TimeMagnitude,
     TimeSpan,
 )
-from cmk.rulesets.v1.rule_specs import CheckParameters, Topic, HostCondition
+from cmk.rulesets.v1.rule_specs import CheckParameters, HostCondition
+from cmk_addons.plugins.opnsense.lib.rulesets import TOPIC
 
 
-def _parameter_form_opnsense_firmware():
+def _parameter_form_opnsense_system():
     return Dictionary(
         elements={
             'last_check': DictElement(
                 parameter_form=SimpleLevels(
                     title=Title('Last check age'),
+                    help_text=Help('Time passed since the last update check.'),
                     level_direction=LevelDirection.UPPER,
                     form_spec_template=TimeSpan(displayed_magnitudes=[TimeMagnitude.DAY, TimeMagnitude.HOUR]),
                     prefill_levels_type=DefaultValue(LevelsType.FIXED),
@@ -48,26 +50,10 @@ def _parameter_form_opnsense_firmware():
                 ),
                 required=False,
             ),
-        }
-    )
-
-
-rule_spec_opnsense_firmware = CheckParameters(
-    name='opnsense_firmware',
-    topic=Topic.NETWORKING,
-    parameter_form=_parameter_form_opnsense_firmware,
-    title=Title('OPNsense Firmware Update check'),
-    help_text=Help('This rule configures thresholds for OPNsense Firmware check.'),
-    condition=HostCondition(),
-)
-
-
-def _parameter_form_opnsense_business():
-    return Dictionary(
-        elements={
             'expiredays': DictElement(
                 parameter_form=SimpleLevels(
                     title=Title('Expiry in days'),
+                    help_text=Help('Remaining days until the OPNsense Bussines license expires. Only applies to Business subscriptions.'),
                     level_direction=LevelDirection.LOWER,
                     form_spec_template=Integer(
                         unit_symbol='days'
@@ -81,11 +67,11 @@ def _parameter_form_opnsense_business():
     )
 
 
-rule_spec_opnsense_business = CheckParameters(
-    name='opnsense_business',
-    topic=Topic.NETWORKING,
-    parameter_form=_parameter_form_opnsense_business,
-    title=Title('OPNsense Businiess License'),
-    help_text=Help('This rule configures thresholds for OPNsense license validity.'),
+rule_spec_opnsense_system = CheckParameters(
+    name='opnsense_system',
+    topic=TOPIC,
+    parameter_form=_parameter_form_opnsense_system,
+    title=Title('OPNsense System'),
+    help_text=Help('Thresholds for OPNsense System check.'),
     condition=HostCondition(),
 )

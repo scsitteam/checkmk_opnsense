@@ -28,15 +28,12 @@ from cmk.agent_based.v2 import (
     State,
     Metric,
 )
-from cmk_addons.plugins.opnsense.agent_based import opnsense_firmware
+from cmk_addons.plugins.opnsense.agent_based import opnsense_system
 
 EXAMPLE_SECTION = json.load(Path('tests/unit/agent_based/test_data/firmware_info/uptodate.json').open())
 EXAMPLE_SECTION_OUTDATED = json.load(Path('tests/unit/agent_based/test_data/firmware_info/outdated.json').open())
 EXAMPLE_SECTION_NOSTATUS = json.load(Path('tests/unit/agent_based/test_data/firmware_info/nostatus.json').open())
-EXAMPLE_SECTION_BUSINESS = {
-    "product_id": "opnsense-business",
-    "product": {"product_license": {"valid_to": "2025-07-31"}},
-}
+EXAMPLE_SECTION_BUSINESS = json.load(Path('tests/unit/agent_based/test_data/firmware_info/uptodate_business.json').open())
 
 
 @pytest.mark.parametrize('section, result', [
@@ -44,7 +41,7 @@ EXAMPLE_SECTION_BUSINESS = {
     (EXAMPLE_SECTION, [Service()]),
 ])
 def test_discovery_opnsense_gateway(section, result):
-    assert list(opnsense_firmware.discovery_opnsense_firmware(section)) == result
+    assert list(opnsense_system.discovery_opnsense_system(section)) == result
 
 
 @pytest.mark.parametrize('params, section, result', [
@@ -71,35 +68,25 @@ def test_discovery_opnsense_gateway(section, result):
         Result(state=State.OK, summary='There are 75 updates available, total download size is 289.8MiB. This update requires a reboot.'),
         Metric('updates', 4.0),
     ]),
-])
-def test_check_opnsense_firmware(freezer, params, section, result):
-    freezer.move_to('2024-10-25 20:00')
-    assert list(opnsense_firmware.check_opnsense_firmware(params, section)) == result
-
-
-@pytest.mark.parametrize('section, result', [
-    ({}, []),
-    (EXAMPLE_SECTION, []),
-    (EXAMPLE_SECTION_BUSINESS, [Service()]),
-])
-def test_discovery_opnsense_business(section, result):
-    assert list(opnsense_firmware.discovery_opnsense_business(section)) == result
-
-
-@pytest.mark.parametrize('params, result', [
-    ({}, [
-        Result(state=State.OK, summary='License expires in: 278 days'),
+    ({}, EXAMPLE_SECTION_BUSINESS, [
+        Result(state=State.OK, summary='Business'),
+        Result(state=State.OK, summary='24.7 (Thriving Tiger)'),
+        Result(state=State.OK, notice='Last update check: 2 hours 57 minutes'),
+        Metric('last_check', 10649.0),
+        Metric('updates', 0.0),
+        Result(state=State.OK, notice='License expires in: 278 days'),
         Metric('expiredays', 278.0),
     ]),
-    ({'expiredays': ('fixed', (360, 180))}, [
+    ({'expiredays': ('fixed', (360, 180))}, EXAMPLE_SECTION_BUSINESS, [
+        Result(state=State.OK, summary='Business'),
+        Result(state=State.OK, summary='24.7 (Thriving Tiger)'),
+        Result(state=State.OK, notice='Last update check: 2 hours 57 minutes'),
+        Metric('last_check', 10649.0),
+        Metric('updates', 0.0),
         Result(state=State.WARN, summary='License expires in: 278 days (warn/crit below 360 days/180 days)'),
         Metric('expiredays', 278.0),
     ]),
-    ({'expiredays': ('fixed', (360, 300))}, [
-        Result(state=State.CRIT, summary='License expires in: 278 days (warn/crit below 360 days/300 days)'),
-        Metric('expiredays', 278.0),
-    ]),
 ])
-def test_check_opnsense_business(freezer, params, result):
+def test_check_opnsense_system(freezer, params, section, result):
     freezer.move_to('2024-10-25 20:00')
-    assert list(opnsense_firmware.check_opnsense_business(params, EXAMPLE_SECTION_BUSINESS)) == result
+    assert list(opnsense_system.check_opnsense_system(params, section)) == result

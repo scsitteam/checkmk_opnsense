@@ -18,34 +18,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-import json
-import datetime
-import dateutil
-from typing import Any
 
-from cmk.agent_based.v2 import StringTable
-
-JSONSection = dict[str, Any] | None
-JSONLSection = list[dict[str, Any]] | None
+from cmk.rulesets.v1 import Title
+from cmk.rulesets.v1.rule_specs import CustomTopic
 
 
-def parse_json(string_table: StringTable) -> JSONSection:
-    if string_table:
-        return json.loads(string_table[0][0])
-    return None
-
-
-def parse_jsonl(string_table: StringTable) -> JSONLSection:
-    if string_table:
-        return [
-            json.loads(line[0])
-            for line in string_table
-        ]
-    return None
-
-
-TZINFOS = {"CEST": dateutil.tz.gettz("Europe/Amsterdam")}
-
-
-def parse_date(date: str) -> datetime.datetime:
-    return dateutil.parser.parse(date, tzinfos=TZINFOS)
+TOPIC = CustomTopic(Title('OPNsense'))

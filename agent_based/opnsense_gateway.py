@@ -69,12 +69,21 @@ agent_section_opnsense_gateway = AgentSection(
 
 
 def discovery_opnsense_gateway(
+    params: dict,
     section: dict,
 ) -> DiscoveryResult:
+    param = params.get('gateway', 'online')
+    if param == 'none':
+        return
+    
     for gw in section.values():
-        if gw['delay'] is None:
+        if param == 'online' and gw['status_translated'] != 'Online':
             continue
-        yield Service(item=gw['name'])
+        if param == 'monitored' and gw['delay'] == None:
+            continue
+        yield Service(item=gw['name'], parameters=dict(
+            status_discoverd=gw['status_translated'],
+        ))
 
 
 def check_opnsense_gateway(
@@ -87,7 +96,7 @@ def check_opnsense_gateway(
 
     gw = section.get(item)
 
-    if gw['status_translated'] == params.get('status', 'Online'):
+    if gw['status_translated'] == params.get('status', params.get('status_discoverd', 'Online')):
         yield Result(state=State.OK, summary=gw['status_translated'])
     else:
         yield Result(state=State.WARN, summary=f"{gw['status_translated']} (expected: {params.get('status', 'Online')})")
@@ -114,6 +123,8 @@ check_plugin_opnsense_gateway = CheckPlugin(
     name='opnsense_gateway',
     service_name='Gateway %s',
     discovery_function=discovery_opnsense_gateway,
+    discovery_default_parameters={'gateway': 'online'},
+    discovery_ruleset_name='opnsense_discovery',
     check_function=check_opnsense_gateway,
     check_default_parameters={},
     check_ruleset_name='opnsense_gateway',

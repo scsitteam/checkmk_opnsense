@@ -28,11 +28,13 @@ from cmk.rulesets.v1.form_specs import (
     InputHint,
     DefaultValue,
     LevelsType,
+    String,
     TimeSpan,
     TimeMagnitude,
     Percentage,
 )
-from cmk.rulesets.v1.rule_specs import CheckParameters, Topic, HostCondition
+from cmk.rulesets.v1.rule_specs import CheckParameters, HostCondition
+from cmk_addons.plugins.opnsense.lib.rulesets import TOPIC
 
 
 def _parameter_form_opnsense_gateway():
@@ -60,13 +62,20 @@ def _parameter_form_opnsense_gateway():
                 ),
                 required=False,
             ),
+            'status_discoverd': DictElement(
+                parameter_form=String(
+                    title=Title('Discoverd status'),
+                ),
+                render_only=True,
+                required=False,
+            ),
         }
     )
 
 
 rule_spec_opnsense_gateway = CheckParameters(
     name='opnsense_gateway',
-    topic=Topic.NETWORKING,
+    topic=TOPIC,
     parameter_form=_parameter_form_opnsense_gateway,
     title=Title('OPNsense Gateway Status'),
     help_text=Help('This rule configures thresholds for OPNsense Gateway status.'),

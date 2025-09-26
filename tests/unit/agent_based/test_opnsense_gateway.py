@@ -51,19 +51,44 @@ def test_parse_opnsense_gateway(string_table, result):
     assert opnsense_gateway.parse_opnsense_gateway(string_table) == result
 
 
-@pytest.mark.parametrize('section, result', [
-    ({}, []),
+@pytest.mark.parametrize('params, section, result', [
+    ({}, {}, []),
     (
+        {},
         EXAMPLE_SECTION,
         [
-            Service(item='GW_A'),
-            Service(item='GW_B'),
-            Service(item='GW_D'),
+            Service(item='GW_A', parameters={'status_discoverd': 'Online'}),
+            Service(item='GW_B', parameters={'status_discoverd': 'Online'}),
+            Service(item='GW_C', parameters={'status_discoverd': 'Online'}),
         ]
     ),
+    (
+        {'gateway': 'monitored'},
+        EXAMPLE_SECTION,
+        [
+            Service(item='GW_A', parameters={'status_discoverd': 'Online'}),
+            Service(item='GW_B', parameters={'status_discoverd': 'Online'}),
+            Service(item='GW_D', parameters={'status_discoverd': 'Offline'}),
+        ]
+    ),
+    (
+        {'gateway': 'all'},
+        EXAMPLE_SECTION,
+        [
+            Service(item='GW_A', parameters={'status_discoverd': 'Online'}),
+            Service(item='GW_B', parameters={'status_discoverd': 'Online'}),
+            Service(item='GW_C', parameters={'status_discoverd': 'Online'}),
+            Service(item='GW_D', parameters={'status_discoverd': 'Offline'}),
+        ]
+    ),
+    (
+        {'gateway': 'none'},
+        EXAMPLE_SECTION,
+        []
+    ),
 ])
-def test_discovery_opnsense_gateway(section, result):
-    assert list(opnsense_gateway.discovery_opnsense_gateway(section)) == result
+def test_discovery_opnsense_gateway(params, section, result):
+    assert list(opnsense_gateway.discovery_opnsense_gateway(params, section)) == result
 
 
 @pytest.mark.parametrize('item, params, result', [

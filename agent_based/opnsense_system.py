@@ -124,7 +124,7 @@ agent_section_opnsense_uptime = AgentSection(
 def parse_opnsense_load(string_table: StringTable) -> uptime.Section:
     section = string_table[0][0].split(', ')
     return cpu.Section(
-        load=cpu.Load(float(section[0]), float(section[0]), float(section[0])),
+        load=cpu.Load(float(section[0]), float(section[1]), float(section[2])),
         num_cpus=1,
     )
 

@@ -231,11 +231,16 @@ class AgentOpnSense:
             section.append(system_time['loadavg'])
 
         with SectionWriter('opnsense_disk') as section:
-            section.append_json(self.api.get('diagnostics', 'system', 'system_disk')))
+            section.append_json(self.api.get('diagnostics', 'system', 'system_disk'))
+
+        system_resources = self.api.get('diagnostics', 'system', 'system_resources')
+        system_swap = self.api.get('diagnostics', 'system', 'system_swap')
+        with SectionWriter('opnsense_memory') as section:
+            section.append_json({'memory': system_resources['memory'], 'swap': system_swap['swap']})
 
         if self.args.interface:
             with SectionWriter('opnsense_interface') as section:
-                section.append_json(self.api.get('diagnostics', 'traffic', 'interface')
+                section.append_json(self.api.get('diagnostics', 'traffic', 'interface'))
 
         if self.args.firewall:
             with SectionWriter('opnsense_pf_states') as section:
